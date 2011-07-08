@@ -1,0 +1,11 @@
+*.a
+*.ar
+*.so
+*.lib
+*.dll
+*.o
+*.obj
+*.exe
+*~
+tests/build/bin/*
+test/build/obj/*
