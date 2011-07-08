@@ -1,5 +1,5 @@
-#ifndef UTSCHBASICTYPES_HPP
-#define UTSCHBASICTYPES_HPP
+#ifndef UTSBT_H_INCLUDED
+#define UTSBT_H_INCLUDED
 /***************************************************************************************************************
  *
  *    Project         <<<<<<<<>>>>>>>>-<<<<<<<<>>>>>>>>
@@ -40,8 +40,19 @@
  * u_sint32 refers to a 32 bit signed intenger - Range: at least [ -2147483648 ~ 2147483647 ]
  * u_uint32 refers to a 32 bit unsigned intenger - Range: at least [ 0 ~ 4294967295 ]
  *
- * u_sint64 refers to a 64 bit signed intenger - Range: implementation defined - at least an u_sint32
- * u_uint64 refers to a 64 bit unsigned intenger - Range: implementation defined - at least an u_uint32
+ * u_sint64 refers to a 64 bit signed intenger - Range: configuration. At least a u_sint32 type, but
+ *                                                   can be [ -9223372036854775808 ~ 9223372036854775807 ] if
+ *                                                   configured on USE_SAFE_LONG_TYPES.
+ * u_uint64 refers to a 64 bit unsigned intenger - Range: configuration. At least a u_uint32 type, but
+ *                                                     can be [ 0 ~ 18446744073709551615 ] if
+ *                                                     configured on USE_SAFE_LONG_TYPES.
+ *
+ * u_int8 refers to a 8bit signed/unsigned intenger, as defined in DEFAULT_INTENGER_SIGN configuration.
+ * u_int16 refers to a 16bit signed/unsigned intenger, as defined in DEFAULT_INTENGER_SIGN configuration.
+ * u_int32 refers to a 32bit signed/unsigned intenger, as defined in DEFAULT_INTENGER_SIGN configuration.
+ * u_int64 refers to a 64bit signed/unsigned intenger, as defined in DEFAULT_INTENGER_SIGN configuration.
+ *
+ *
  *
  * Please read the following configuration to change any aspect of the types you want to have.
  */
@@ -100,6 +111,25 @@
 
 
 
+/* USE SAFE LONG TYPES
+ *
+ * Set here if you want to be sure that any long type (64 bits type) is bigger than its 'predecessor'.
+ *
+ * Like, if you want the u_int64 only to be defined when it is a real 64 bit type (not a 32 bit, like
+ * in some compilers), set here. If it is a int32 type, a macro U_INT64_IS_U_INT32 will be defined.
+ *
+ * If you want to it always be defined, if the 64bit type is a 32bit type, the macro U_INT64_IS_U_INT32
+ * will still be defined, but the types will be too.
+ *
+ * If you want to define the 64bit types safely (only if they are bigger), set this to 1. If you want to
+ * define it all times, set to 0.
+ *
+ * The default is 1 (only define 64 bits types when they are bigger than 32 bits types).
+ */
+#define USE_SAFE_LONG_TYPES 1
+
+
+
 /* CHAR OR WCHAR
  *
  * Set here if you want to use a wchar type. If you want to use a char type, put 0. If you want to use a
@@ -135,8 +165,8 @@
 #    error error@UtsBT: The BIT_MAX_SIZE macro was set incorrectly.
 #endif
 
-/* Checks if USE_SAFE_LONG_INT was set correctly. */
-#if USE_SAFE_LONG_INT != 0 && USE_SAFE_LONG_INT != 1
+/* Checks if USE_SAFE_LONG_TYPES was set correctly. */
+#if USE_SAFE_LONG_TYPES != 0 && USE_SAFE_LONG_TYPES != 1
 #    error error@UtsBT: The USE_SAFE_LONG_INT macro was set incorrectly.
 #endif
 
@@ -172,14 +202,14 @@
 #define UTSBT_COPYRIGHT "Copyright (C) 2011, Renato Utsch, <renatoutsch@gmail.com>"
 
 /* The version in a string. */
-#define UTSBT_VERSION "1.0"
+#define UTSBT_VERSION "1.1"
 
 /* The version is available in two parts: */
 #define UTSBT_VERSION_MAJOR 1
-#define UTSBT_VERSION_MINOR 0
+#define UTSBT_VERSION_MINOR 1
 
 /* It is also available in a hexadecimal to compare against versions. */
-#define UTSBT_VERSION_HEX 0x0100;
+#define UTSBT_VERSION_HEX 0x0101;
 
 
 
@@ -227,18 +257,12 @@
 
 
 
-/*************************************************************************************************************
- *
- * Intengers with guaranteed MINIMUM and MAXIMUM sizes.
- *
- ************************************************************************************************************/
-
 /* Defines the char type. Guarantees at least the (-128) ~ 127 size. */
 #if USE_WCHAR == 0 /* If is a normal char... */
 #    if CHAR_MIN == (-128) /* Checks if starts as a 'signed' char. */
 #        if CHAR_MAX == 0x7F /* And checks if ends as a 'signed' char. */
              typedef char u_char;
-#            define U_CHAR_DEFINED 0
+#            define U_CHAR_DEFINED 1
 #        else /* If the size is wrong. */
 #            error error@UtsBT: The char type does not have the correct size.
 #        endif
@@ -246,7 +270,7 @@
 #    else /* Checks if starts as an 'unsigned' char. */
 #        if CHAR_MAX == 0xFF /* And checks if ends as an 'unsigned' char. */
              typedef char u_char
-#            define U_CHAR_DEFINED 0
+#            define U_CHAR_DEFINED 1
 #        else /* If the size is wrong. */
 #            error error@UtsBT: The char type does not have the correct size.
 #        endif
@@ -262,10 +286,10 @@
  * Guarantees at least the [(-128) ~ 127] / [0 ~ 255] size
  */
 #if BIT_MAX_SIZE >= 8 /* Checks if is to support the 8 bits int. */
-#    if SCHAR_MIN <= (-128) /* Checks if starts as a signed int8. */
+#    if SCHAR_MIN <= -0x80 /* Checks if starts as a signed int8. */
 #        if SCHAR_MAX >= 0x7F /* And checks if ends as a signed int8. */
              typedef signed char u_sint8;
-#            define U_SINT8_DEFINED 0
+#            define U_SINT8_DEFINED 1
 #        else /* If the size is wrong. */
 #            error error@UtsBT: The 8 bits signed int type does not have the correct size.
 #        endif
@@ -275,7 +299,7 @@
 #
 #    if UCHAR_MAX >= 0xFF /* Checks if ends as an unsigned int8. */
          typedef unsigned char u_uint8;
-#        define U_UINT8_DEFINED 0
+#        define U_UINT8_DEFINED 1
 #    else /* If the size is wrong. */
 #        error error@UtsBT: The 8 bits unsigned int type does not have the correct size.
 #    endif
@@ -284,12 +308,12 @@
 /* Now, sets the base int8 type. */
 #    if DEFAULT_INTENGER_SIGN == 0
          typedef u_sint8 u_int8;
-#        define U_INT8_DEFINED 0
-#        define U_INT8_IS_SIGNED 0 /* To be used as additional error checking... */
+#        define U_INT8_DEFINED 1
+#        define U_INT8_IS_SIGNED 1 /* To be used as additional error checking... */
 #    else /* DEFAULT_INTENGER_SIGN == 1 */
          typedef u_uint8 u_int8;
-#        define U_INT8_DEFINED 0
-#        define U_INT8_IS_UNSIGNED 0 /* To be used as additional error checking... */
+#        define U_INT8_DEFINED 1
+#        define U_INT8_IS_UNSIGNED 1 /* To be used as additional error checking... */
 #    endif /* DEFAULT_INTENGER_SIGN == 0 */
 
 /* End of int8 types. */
@@ -301,10 +325,10 @@
  * [(-32768) ~ 32767] / [0 ~ 65535] size.
  */
 #if BIT_MAX_SIZE >= 16 /* Checks if is to support the 16 bits sign. */
-#    if SHRT_MIN <= (-32768) /* Checks if starts as a signed int16. */
+#    if SHRT_MIN <= -0x8000 /* Checks if starts as a signed int16. */
 #        if SHRT_MAX >= 0x7FFF /* Checks if ends as a signed int16. */
              typedef signed short int u_sint16;
-#            define U_SINT16_DEFINED 0
+#            define U_SINT16_DEFINED 1
 #        else /* If the size is wrong. */
 #            error error@UtsBT: The 16 bits signed int type does not have the correct size.
 #        endif
@@ -314,7 +338,7 @@
 #
 #    if USHRT_MAX >= 0xFFFF /* Checks if ends as an unsigned int16. */
          typedef unsigned short int u_uint16;
-#        define U_UINT16_DEFINED 0
+#        define U_UINT16_DEFINED 1
 #    else /* If the size is wrong. */
 #        error error@UtsBT: The 16 bits unsigned int type does not have the correct size.
 #    endif
@@ -323,12 +347,12 @@
 /* Now, sets the base int16 type. */
 #    if DEFAULT_INTENGER_SIGN == 0
          typedef u_sint16 u_int16;
-#        define U_INT16_DEFINED 0
-#        define U_INT16_IS_SIGNED 0 /* To be used as additional error checking... */
+#        define U_INT16_DEFINED 1
+#        define U_INT16_IS_SIGNED 1 /* To be used as additional error checking... */
 #    else /* DEFAULT_INTENGER_SIGN == 1 */
          typedef u_uint16 u_int16;
-#        define U_INT16_DEFINED 0
-#        define U_INT16_IS_UNSIGNED 0 /* To be used as additional error checking... */
+#        define U_INT16_DEFINED 1
+#        define U_INT16_IS_UNSIGNED 1 /* To be used as additional error checking... */
 #    endif /* DEFAULT_INTENGER_SIGN == 0 */
 
 /* End of int16 types. */
@@ -340,10 +364,10 @@
  * [(-2147483648) ~ 2147483647] / [0 ~ 4294967295] size.
  */
 #if BIT_MAX_SIZE >= 32 /* Checks if is to support the 32 bits sign. */
-#    if INT_MIN <= (-2147483648) /* Checks if starts as a signed int32. */
+#    if INT_MIN <= -0x80000000 /* Checks if starts as a signed int32. */
 #        if INT_MAX >= 0x7FFFFFFF /* Checks if ends as a signed int32. */
              typedef signed int u_sint32;
-#            define U_SINT32_DEFINED 0
+#            define U_SINT32_DEFINED 1
 #        else /* If the size is wrong. */
 #            error error@UtsBT: The 32 bits signed int type does not have the correct size.
 #        endif
@@ -353,21 +377,21 @@
 #
 #    if UINT_MAX >= 0xFFFFFFFFU /* Checks if ends as an unsigned int32. */
          typedef unsigned int u_uint32;
-#        define U_UINT32_DEFINED 0
+#        define U_UINT32_DEFINED 1
 #    else /* If the size is wrong. */
-#        error error@UtsBT: The 16 bits unsigned int type does not have the correct size.
+#        error error@UtsBT: The 32 bits unsigned int type does not have the correct size.
 #    endif
 #
 
 /* Now, sets the base int32 type. */
 #    if DEFAULT_INTENGER_SIGN == 0
          typedef u_sint32 u_int32;
-#        define U_INT32_DEFINED 0
-#        define U_INT32_IS_SIGNED 0 /* To be used as additional error checking... */
+#        define U_INT32_DEFINED 1
+#        define U_INT32_IS_SIGNED 1 /* To be used as additional error checking... */
 #    else /* DEFAULT_INTENGER_SIGN == 1 */
          typedef u_uint32 u_int32;
-#        define U_INT32_DEFINED 0
-#        define U_INT32_IS_UNSIGNED 0 /* To be used as additional error checking... */
+#        define U_INT32_DEFINED 1
+#        define U_INT32_IS_UNSIGNED 1 /* To be used as additional error checking... */
 #    endif /* DEFAULT_INTENGER_SIGN == 0 */
 
 /* End of int32 types. */
@@ -375,40 +399,57 @@
 
 
 
-/*************************************************************************************************************
- *
- * Intengers with guaranteed MINIMUM, but not maximum size.
- *
- ************************************************************************************************************/
-
 /* The u_sint64 and u_uint64 have variable maximum size.
  * If USE_SAFE_LONG_INT was set to 1, only sets the u_sint64 and u_uint64 if it is bigger than the u_sint32
  * and u_uint32, respectively.
  */
 #if BIT_MAX_SIZE >= 64 /* Checks if is to support the 64 bits sign. */
-/* As we have no proper ways to check if is really a int64, we'll believe on the compiler and add it. */
-     typedef signed long int u_sint64;
-#    define U_SINT64_DEFINED 0
+#    if LONG_MIN < INT_MIN && INT_MAX < LONG_MAX && UINT_MAX < ULONG_MAX
+#        if LONG_MIN <= -0x8000000000000000L /* Checks if starts as a signed int64. */
+#            if LONG_MAX >= 0x7FFFFFFFFFFFFFFFL /* Checks if ends as a signed int64. */
+                 typedef signed long int u_sint64;
+#                define U_SINT64_DEFINED 1
+#            else /* If the size is wrong. */
+#                error error@UtsBT: The 64 bits signed int type does not have the correct size.
+#            endif
+#        else /* If the size is wrong. */
+#            error error@UtsBT: The 64 bits signed int type does not have the correct size.
+#        endif
 #
-     typedef unsigned long int u_uint64;
-#    define U_UINT64_DEFINED 0
+#        if ULONG_MAX >= 0xFFFFFFFFFFFFFFFFUL /* Checks if ends as an unsigned int64. */
+             typedef unsigned long int u_uint64;
+#            define U_UINT64_DEFINED 1
+#        else /* If the size is wrong. */
+#            error error@UtsBT: The 64 bits unsigned int type does not have the correct size.
+#        endif
+#    elif LONG_MIN <= INT_MIN && LONG_MAX >= INT_MAX && ULONG_MAX >= UINT_MAX
+         /* The int64 is at least an int32, but not an int64. So, say that's an int32. */
+#        define U_INT64_IS_U_INT32 1
+#        if USE_SAFE_LONG_TYPES == 0
+             /* The int64 is surely the int32 type. No need for additional checking. */
+             typedef signed long int u_sint64;
+#            define U_SINT64_IS_DEFINED 1
+             typedef unsigned long int u_uint64;
+#            define U_UINT64_IS_DEFINED 1
+#        endif
+#    else
+#        error error@UtsBT: The 64 bits type is not conformant with ISO C89/C99/C++98.
+#    endif
 #
 
 /* Now, sets the base int64 type. */
 #    if DEFAULT_INTENGER_SIGN == 0
          typedef u_sint64 u_int64;
-#        define U_INT64_DEFINED 0
-#        define U_INT64_IS_SIGNED 0 /* To be used as additional error checking... */
+#        define U_INT64_DEFINED 1
+#        define U_INT64_IS_SIGNED 1 /* To be used as additional error checking... */
 #    else /* DEFAULT_INTENGER_SIGN == 1 */
          typedef u_uint64 u_int64;
-#        define U_INT64_DEFINED 0
-#        define U_INT64_IS_UNSIGNED 0 /* To be used as additional error checking... */
+#        define U_INT64_DEFINED 1
+#        define U_INT64_IS_UNSIGNED 1 /* To be used as additional error checking... */
 #    endif /* DEFAULT_INTENGER_SIGN == 0 */
 #
 
 /* End of int64 types. */
 #endif /* BIT_MAX_SIZE >= 64 */
 
-#endif /* !UTSCHBASICTYPES_HPP */
-
-
+#endif /* !UTSBT_H_INCLUDED */
