@@ -130,6 +130,21 @@
 
 
 
+/* FALL THROUGH TYPES
+ *
+ * Set here if you want to fall through bigger types to ensure that almost all times the types will be defined.
+ *
+ * For example, if the small int size is not sufficient to cover a 16 bit intenger size (which isn't normal), before
+ * launching an error UtsBT checks if the int size can cover the 16 bit intenger size, or the long int. Then defines
+ * it as the intenger size. This is specially useful if you compile on a architecture different of the one you originally
+ * designed the software to work.
+ *
+ * The default is 1 (this mode is activated).
+ */
+#define FALL_THROUGH_TYPES 1
+
+
+
 /* CHAR OR WCHAR
  *
  * Set here if you want to use a wchar type. If you want to use a char type, put 0. If you want to use a
@@ -173,6 +188,11 @@
 /* Checks if DEFAULT_INTENGER_SIGN was set correctly. */
 #if DEFAULT_INTENGER_SIGN != 0 && DEFAULT_INTENGER_SIGN != 1
 #    error error@UtsBT: The DEFAULT_INTENGER_SIGN macro was set incorrectly.
+#endif
+
+/* Checks if FALL_THROUGH_TYPES was set correctly. */
+#if FALL_THROUGH_TYPES != 0 && FALL_THROUGH_TYPES != 1
+#    error error@UtsBT: The FALL_THROUGH_TYPES macro was set incorrectly.
 #endif
 
 /* Checks if USE_WCHAR was set correctly. */
@@ -225,7 +245,7 @@
 #        include <cwchar> /* To use the wchar_t type. */
 #    endif
 #
-#else
+#else /* __cplusplus is not defined. */
 #    include <limits.h> /* Used to calculate the limits with the intenger types. */
 #
 #    if USE_WCHAR == 1
@@ -239,11 +259,15 @@
 #if !defined(CHAR_BIT) || !defined(SCHAR_MIN) || !defined(SCHAR_MAX) || !defined(UCHAR_MAX) || \
   !defined(CHAR_MIN) || !defined(CHAR_MAX) || !defined(SHRT_MIN) || !defined(SHRT_MAX) || \
   !defined(USHRT_MAX) || !defined(INT_MIN) || !defined(INT_MAX) || !defined(UINT_MAX) || \
-  !defined(LONG_MIN) || !defined(LONG_MAX) || !defined(ULONG_MAX)
-#ifndef __cplusplus /* Using C. */
-#    error error@UtsBT: <limits.h> is not conformant with ISO C+.
-#else /* Using C++. */
-#    error error@UtsBT: <climits> is not conformant with ISO C++.
+  !defined(LONG_MIN) || !defined(LONG_MAX) || !defined(ULONG_MAX) || \
+  SCHAR_MIN < SHRT_MIN || SHRT_MIN < INT_MIN || INT_MIN < LONG_MIN || \
+  SCHAR_MAX > SHRT_MAX || SHRT_MAX > INT_MAX || INT_MAX > LONG_MAX || \
+  UCHAR_MAX > USHRT_MAX || USHRT_MAX > UINT_MAX || UINT_MAX > ULONG_MAX
+#    ifndef __cplusplus /* Using C. */
+#        error error@UtsBT: <limits.h> is not conformant with ISO C+.
+#    else /* Using C++. */
+#        error error@UtsBT: <climits> is not conformant with ISO C++.
+#    endif
 #endif
 
 
@@ -262,7 +286,7 @@
 
 /* Defines the char type. Guarantees at least the (-128) ~ 127 size. */
 #if USE_WCHAR == 0 /* If is a normal char... */
-#    if CHAR_MIN == (-128) /* Checks if starts as a 'signed' char. */
+#    if CHAR_MIN == -0x80 /* Checks if starts as a 'signed' char. */
 #        if CHAR_MAX == 0x7F /* And checks if ends as a 'signed' char. */
              typedef char u_char;
 #            define U_CHAR_DEFINED 1
@@ -294,17 +318,89 @@
              typedef signed char u_sint8;
 #            define U_SINT8_DEFINED 1
 #        else /* If the size is wrong. */
-#            error error@UtsBT: The 8 bits signed int type does not have the correct size.
+#            if FALL_THROUGH_TYPES == 1 /* If is to fall through the bigger types to define others. */
+#                if SHRT_MIN <= SCHAR_MIN && SHRT_MAX >= 0x7F /* Checks if the size is sufficiently big to define the type.
+                                                               * SCHAR_MIN is guaranteed to have a minimum size ok, so only check by that. */
+				     typedef signed short int u_sint8;
+#                    define U_SINT8_DEFINED 1
+#                elif INT_MIN <= SCHAR_MIN && INT_MAX >= 0x7F /* Checks if the size is sufficiently big to define the type.
+                                                               * SCHAR_MIN is guaranteed to have a minimum size ok, so only check by that. */
+				     typedef signed int u_sint8;
+#                    define U_SINT8_DEFINED 1
+#                elif LONG_MIN <= SCHAR_MIN && LONG_MAX >= 0x7F /* Checks if the size is sufficiently big to define the type.
+                                                                 * SCHAR_MIN is guaranteed to have a minimum size ok, so only check by that. */
+				     typedef signed long int u_sint8;
+#                    define U_SINT8_DEFINED 1
+#                else
+#                    error error@UtsBT: The 8 bits signed int type does not have the correct size.
+#                endif
+#            else /* FALL_THROUGH_TYPES == 0 */
+#                error error@UtsBT: The 8 bits signed int type does not have the correct size.
+#            endif
 #        endif
 #    else /* If the size is wrong. */
-#        error error@UtsBT: The 8 bits signed int type does not have the correct size.
+#        if FALL_THROUGH_TYPES == 1 /* If is to fall through the bigger types to define others. */
+#            if SHRT_MIN <= -0x80 /* Checks if the size is sufficiently small to define the type. */
+#                if SHRT_MAX >= 0x7F /* Checks if the size is sufficiently big to define the type. */
+                     typedef signed short int u_sint8;
+#					 define U_SINT8_DEFINED 1
+#                elif INT_MIN <= SHRT_MIN && INT_MAX >= 0x7F /* Checks if the size is sufficiently big to define the type.
+                                                              * SHRT_MIN is guaranteed to have a minimum size ok, so only check by that. */
+	                 typedef signed int u_sint8;
+#                    define U_SINT8_DEFINED 1
+#                elif LONG_MIN <= SHRT_MIN && LONG_MAX >= 0x7F /* Checks if the size is sufficiently big to define the type.
+                                                                * SHRT_MIN is guaranteed to have a minimum size ok, so only check by that. */
+                     typedef signed long int u_sint8;
+#				     define U_SINT8_DEFINED 1
+#                else /* If no size is compatible. */
+#                    error@UtsBT: The 8 bits signed int type does not have the correct size.
+#                endif
+#            elif INT_MIN <= -0x80 /* Checks if the size is sufficiently small to define the type. */
+#                if INT_MAX >= 0x7F /* Checks if the size is sufficiently big to define the type. */
+                     typedef signed int u_sint8;
+#                    define U_SINT8_DEFINED 1
+#                elif LONG_MIN <= INT_MIN && LONG_MAX >= 0x7F /* Checks if the size is sufficiently big to define the type.
+                                                               * INT_MIN is guaranteed to have a minimum size ok, so only check by that. */
+			         typedef signed long int u_sint8;
+#                    define U_SINT8_DEFINED 1
+#                else /* If no size is compatible. */
+#                    error error@UtsBT: The 8 bits signed int type does not have the correct size.
+#                endif
+#            elif LONG_MIN <= -0x80 /* Checks if the size is sufficiently small to define the type. */
+#                if LONG_MAX >= 0x7F /* Checks if the size is sufficiently big to define the type. */
+                     typedef signed long int u_sint8;
+#                    define U_SINT8_DEFINED 1
+#                else
+#                    error error@UtsBT: The 8 bits signed int type does not have the correct size.
+#                endif
+#            else /* If no size is compatible. */
+#                error error@UtsBT: The 8 bits signed int type does not have the correct size.
+#            endif
+#        else /* FALL_THROUGH_TYPES == 0 */
+#            error error@UtsBT: The 8 bits signed int type does not have the correct size.
+#        endif
 #    endif
 #
 #    if UCHAR_MAX >= 0xFF /* Checks if ends as an unsigned int8. */
          typedef unsigned char u_uint8;
 #        define U_UINT8_DEFINED 1
 #    else /* If the size is wrong. */
-#        error error@UtsBT: The 8 bits unsigned int type does not have the correct size.
+#        if FALL_THROUGH_TYPES == 1 /* If is to fall through the bigger types to define others. */
+#            if USHRT_MAX >= 0xFF /* Checks if the size is sufficiently big to define the type. */
+                 typedef unsigned short int u_uint8;
+#                define U_UINT8_DEFINED 1
+#            elif UINT_MAX >= 0xFF /* Checks if the size is sufficiently big to define the type. */
+                 typedef unsigned int u_uint8;
+#                define U_UINT8_DEFINED 1
+#            elif ULONG_MAX >= 0xFF /* Checks if the size is sufficiently big to define the type. */
+                 typedef unsigned long int u_uint8;
+#                define U_UINT8_DEFINED 1
+#            else /* If no size is compatible. */
+#                error error@UtsBT: The 8 bits unsigned int type does not have the correct size.
+#            endif
+#        else /* FALL_THROUGH_TYPES == 0 */
+#            error error@UtsBT: The 8 bits unsigned int type does not have the correct size.
+#        endif
 #    endif
 #
 
