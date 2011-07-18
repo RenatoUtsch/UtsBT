@@ -202,14 +202,14 @@
 #define UTSBT_COPYRIGHT "Copyright (C) 2011, Renato Utsch, <renatoutsch@gmail.com>"
 
 /* The version in a string. */
-#define UTSBT_VERSION "1.1"
+#define UTSBT_VERSION "1.2"
 
 /* The version is available in two parts: */
 #define UTSBT_VERSION_MAJOR 1
-#define UTSBT_VERSION_MINOR 1
+#define UTSBT_VERSION_MINOR 2
 
 /* It is also available in a hexadecimal to compare against versions. */
-#define UTSBT_VERSION_HEX 0x0101;
+#define UTSBT_VERSION_HEX 0x0102;
 
 
 
@@ -240,7 +240,10 @@
   !defined(CHAR_MIN) || !defined(CHAR_MAX) || !defined(SHRT_MIN) || !defined(SHRT_MAX) || \
   !defined(USHRT_MAX) || !defined(INT_MIN) || !defined(INT_MAX) || !defined(UINT_MAX) || \
   !defined(LONG_MIN) || !defined(LONG_MAX) || !defined(ULONG_MAX)
-#    error error@UtsBT: <limits.h> / <climits> is not conformant with ISO C.
+#ifndef __cplusplus /* Using C. */
+#    error error@UtsBT: <limits.h> is not conformant with ISO C+.
+#else /* Using C++. */
+#    error error@UtsBT: <climits> is not conformant with ISO C++.
 #endif
 
 
@@ -267,9 +270,9 @@
 #            error error@UtsBT: The char type does not have the correct size.
 #        endif
 #
-#    else /* Checks if starts as an 'unsigned' char. */
+#    else /* If is a 'unsigned' char. */
 #        if CHAR_MAX == 0xFF /* And checks if ends as an 'unsigned' char. */
-             typedef char u_char
+             typedef char u_char;
 #            define U_CHAR_DEFINED 1
 #        else /* If the size is wrong. */
 #            error error@UtsBT: The char type does not have the correct size.
@@ -277,7 +280,7 @@
 #    endif
 #
 #elif USE_WCHAR == 1 /* If is a wchar_t char... */
-# /* Needs to implement... */
+#    define WCHAR_NOT_IMPLEMENTED 1 /* Needs to implement... */
 #endif
 
 
