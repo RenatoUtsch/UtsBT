@@ -54,6 +54,9 @@
  *
  *
  *
+ * OBSERVATION: when compiling, if having many errors, check if any 'error@UtsBT' message was shown. If yes,
+ * the cause of the problem is explained in the message and it may be causing all these errors.
+ *
  * Please read the following configuration to change any aspect of the types you want to have.
  */
 
@@ -530,6 +533,8 @@
 #            define U_SINT64_IS_DEFINED 1
              typedef unsigned long int u_uint64;
 #            define U_UINT64_IS_DEFINED 1
+#        else /* USE_SAFE_LONG_TYPES == 1 */
+#            error error@UtsBT: The int64 type is the int32 type.
 #        endif
 #    else
 #        error error@UtsBT: The 64 bits type is not conformant with ISO C89/C99/C++98.
@@ -537,15 +542,18 @@
 #
 
 /* Now, sets the base int64 type. */
-#    if DEFAULT_INTENGER_SIGN == 0
-         typedef u_sint64 u_int64;
-#        define U_INT64_DEFINED 1
-#        define U_INT64_IS_SIGNED 1 /* To be used as additional error checking... */
-#    else /* DEFAULT_INTENGER_SIGN == 1 */
-         typedef u_uint64 u_int64;
-#        define U_INT64_DEFINED 1
-#        define U_INT64_IS_UNSIGNED 1 /* To be used as additional error checking... */
-#    endif /* DEFAULT_INTENGER_SIGN == 0 */
+#    if U_SINT64_IS_DEFINED == 1 && U_UINT64_IS_DEFINED == 1 /* To prevent strange error messsages
+                                                              * on the compiling time. */
+#        if DEFAULT_INTENGER_SIGN == 0
+             typedef u_sint64 u_int64;
+#            define U_INT64_DEFINED 1
+#            define U_INT64_IS_SIGNED 1 /* To be used as additional error checking... */
+#        else /* DEFAULT_INTENGER_SIGN == 1 */
+             typedef u_uint64 u_int64;
+#            define U_INT64_DEFINED 1
+#            define U_INT64_IS_UNSIGNED 1 /* To be used as additional error checking... */
+#        endif /* DEFAULT_INTENGER_SIGN == 0 */
+#    endif
 #
 
 /* End of int64 types. */
