@@ -93,7 +93,7 @@
  *
  * Observation: the char type is always defined.
  */
-#define BIT_MAX_SIZE 64
+#define BIT_MAX_SIZE 32
 
 
 
@@ -169,55 +169,12 @@
 /* ======================================================================================================== *\
  *                                                                                                          *
  *                                                                                                          *
- *                                         <<< CONF CHECKING >>>                                            *
- *                                                                                                          *
- *                                                                                                          *
-\* ======================================================================================================== */
-
-/* Checks the configuration set by the users. */
-
-
-
-/* Checks if BIT_MAX_SIZE was set correctly. */
-#if BIT_MAX_SIZE != 8 && BIT_MAX_SIZE != 16 && BIT_MAX_SIZE != 32 && BIT_MAX_SIZE != 64
-#    error error@UtsBT: The BIT_MAX_SIZE macro was set incorrectly.
-#endif
-
-/* Checks if USE_SAFE_LONG_TYPES was set correctly. */
-#if USE_SAFE_LONG_TYPES != 0 && USE_SAFE_LONG_TYPES != 1
-#    error error@UtsBT: The USE_SAFE_LONG_INT macro was set incorrectly.
-#endif
-
-/* Checks if DEFAULT_INTENGER_SIGN was set correctly. */
-#if DEFAULT_INTENGER_SIGN != 0 && DEFAULT_INTENGER_SIGN != 1
-#    error error@UtsBT: The DEFAULT_INTENGER_SIGN macro was set incorrectly.
-#endif
-
-/* Checks if FALL_THROUGH_TYPES was set correctly. */
-#if FALL_THROUGH_TYPES != 0 && FALL_THROUGH_TYPES != 1
-#    error error@UtsBT: The FALL_THROUGH_TYPES macro was set incorrectly.
-#endif
-
-/* Checks if USE_WCHAR was set correctly. */
-#if USE_WCHAR != 0 && USE_WCHAR != 1
-#    error error@utsBT: The USE_WCHAR macro was set incorrectly.
-#endif
-
-
-
-/* ======================================================================================================== *\
- *                                                                                                          *
- *                                                                                                          *
  *                                            <<< INTERNAL >>>                                              *
  *                                                                                                          *
  *                                                                                                          *
 \* ======================================================================================================== */
 
-/* Here, includes the needed headers and declares the internal macros. */
-
-
-
-/* First, declares the internal macros. */
+/* Here, declares the internal macros. */
 
 
 
@@ -236,7 +193,15 @@
 
 
 
-/* Then, the inclusions. */
+/* ======================================================================================================== *\
+ *                                                                                                          *
+ *                                                                                                          *
+ *                                           <<< INCLUSIONS >>>                                             *
+ *                                                                                                          *
+ *                                                                                                          *
+\* ======================================================================================================== */
+
+/* Here, include the needed headers. */
 
 
 
@@ -257,6 +222,44 @@
 #
 #endif
 
+
+
+/* ======================================================================================================== *\
+ *                                                                                                          *
+ *                                                                                                          *
+ *                                         <<< CONF CHECKING >>>                                            *
+ *                                                                                                          *
+ *                                                                                                          *
+\* ======================================================================================================== */
+
+/* Checks the configuration. */
+
+
+
+/* Checks if BIT_MAX_SIZE was set correctly. */
+#if BIT_MAX_SIZE != 8 && BIT_MAX_SIZE != 16 && BIT_MAX_SIZE != 32 && BIT_MAX_SIZE != 64
+#    error error@UtsBT: the BIT_MAX_SIZE macro was set incorrectly.
+#endif
+
+/* Checks if USE_SAFE_LONG_TYPES was set correctly. */
+#if USE_SAFE_LONG_TYPES != 0 && USE_SAFE_LONG_TYPES != 1
+#    error error@UtsBT: the USE_SAFE_LONG_INT macro was set incorrectly.
+#endif
+
+/* Checks if DEFAULT_INTENGER_SIGN was set correctly. */
+#if DEFAULT_INTENGER_SIGN != 0 && DEFAULT_INTENGER_SIGN != 1
+#    error error@UtsBT: the DEFAULT_INTENGER_SIGN macro was set incorrectly.
+#endif
+
+/* Checks if FALL_THROUGH_TYPES was set correctly. */
+#if FALL_THROUGH_TYPES != 0 && FALL_THROUGH_TYPES != 1
+#    error error@UtsBT: the FALL_THROUGH_TYPES macro was set incorrectly.
+#endif
+
+/* Checks if USE_WCHAR was set correctly. */
+#if USE_WCHAR != 0 && USE_WCHAR != 1
+#    error error@utsBT: the USE_WCHAR macro was set incorrectly.
+#endif
 
 /* Now, for a bit extra security, tests if the compiler has supplied a conformant <limits.h> file... */
 #if !defined(CHAR_BIT) || !defined(SCHAR_MIN) || !defined(SCHAR_MAX) || !defined(UCHAR_MAX) || \
@@ -294,7 +297,7 @@
              typedef char u_char;
 #            define U_CHAR_DEFINED 1
 #        else /* If the size is wrong. */
-#            error error@UtsBT: The char type does not have the correct size.
+#            error error@UtsBT: the char type does not have a compatible size.
 #        endif
 #
 #    else /* If is a 'unsigned' char. */
@@ -302,7 +305,7 @@
              typedef char u_char;
 #            define U_CHAR_DEFINED 1
 #        else /* If the size is wrong. */
-#            error error@UtsBT: The char type does not have the correct size.
+#            error error@UtsBT: the char type does not have a compatible size.
 #        endif
 #    endif
 #
@@ -336,10 +339,10 @@
 				     typedef signed long int u_sint8;
 #                    define U_SINT8_DEFINED 1
 #                else
-#                    error error@UtsBT: The 8 bits signed int type does not have the correct size.
+#                    error error@UtsBT: the 8 bits signed int type does not have a compatible size.
 #                endif
 #            else /* FALL_THROUGH_TYPES == 0 */
-#                error error@UtsBT: The 8 bits signed int type does not have the correct size.
+#                error error@UtsBT: the 8 bits signed int needed to fall through, but it was set to not fall through.
 #            endif
 #        endif
 #    else /* If the size is wrong. */
@@ -358,7 +361,7 @@
                      typedef signed long int u_sint8;
 #				     define U_SINT8_DEFINED 1
 #                else /* If no size is compatible. */
-#                    error@UtsBT: The 8 bits signed int type does not have the correct size.
+#                    error@UtsBT: the 8 bits signed int type does not have a compatible size.
 #                endif
 #            elif INT_MIN <= -0x80L /* Checks if the size is sufficiently small to define the type. */
 #                if INT_MAX >= 0x7FL /* Checks if the size is sufficiently big to define the type. */
@@ -369,20 +372,20 @@
 			         typedef signed long int u_sint8;
 #                    define U_SINT8_DEFINED 1
 #                else /* If no size is compatible. */
-#                    error error@UtsBT: The 8 bits signed int type does not have the correct size.
+#                    error error@UtsBT: the 8 bits signed int type does not have a compatible size.
 #                endif
 #            elif LONG_MIN <= -0x80L /* Checks if the size is sufficiently small to define the type. */
 #                if LONG_MAX >= 0x7FL /* Checks if the size is sufficiently big to define the type. */
                      typedef signed long int u_sint8;
 #                    define U_SINT8_DEFINED 1
 #                else
-#                    error error@UtsBT: The 8 bits signed int type does not have the correct size.
+#                    error error@UtsBT: the 8 bits signed int type does not have a compatible size.
 #                endif
 #            else /* If no size is compatible. */
-#                error error@UtsBT: The 8 bits signed int type does not have the correct size.
+#                error error@UtsBT: the 8 bits signed int type does not have a compatible size.
 #            endif
 #        else /* FALL_THROUGH_TYPES == 0 */
-#            error error@UtsBT: The 8 bits signed int type does not have the correct size.
+#            error error@UtsBT: the 8 bits signed int type needed to fall through, but it was set to not fall through.
 #        endif
 #    endif
 #
@@ -402,10 +405,10 @@
                  typedef unsigned long int u_uint8;
 #                define U_UINT8_DEFINED 1
 #            else /* If no size is compatible. */
-#                error error@UtsBT: The 8 bits unsigned int type does not have the correct size.
+#                error error@UtsBT: the 8 bits unsigned int type does not have a compatible size.
 #            endif
 #        else /* FALL_THROUGH_TYPES == 0 */
-#            error error@UtsBT: The 8 bits unsigned int type does not have the correct size.
+#            error error@UtsBT: the 8 bits unsigned int type does not have a compatible size.
 #        endif
 #    endif
 #
@@ -446,10 +449,10 @@
 			         typedef signed long int u_sint16;
 #                    define U_SINT16_DEFINED 1
 #                else /* If no size is compatible. */
-#                    error error@UtsBT: The 16 bits signed int type does not have the correct size.
+#                    error error@UtsBT: the 16 bits signed int type does not have a compatible size.
 #                endif
 #            else /* FALL_THROUGH_TYPES == 0 */
-#                error error@UtsBT: The 16 bits signed int type does not have the correct size.
+#                error error@UtsBT: the 16 bits signed int type needed to fall through, but it was set to not fall through.
 #            endif
 #        endif
 #    else /* If the size is wrong. */
@@ -464,21 +467,21 @@
 				     typedef signed long int u_sint16;
 #                    define U_SINT16_DEFINED 1
 #                else /* If no size is compatible. */
-#                    error error@UtsBT: The 16 bits signed int type does not have the correct size.
+#                    error error@UtsBT: the 16 bits signed int type does not have a compatible size.
 #                endif
 #            elif LONG_MIN <= -0x8000L /* Checks if the size is sufficiently small to define the type. */
 #                if LONG_MAX >= 0x7FFFL /* Checks if the size is sufficiently big to define the type. */
                      typedef signed long int u_sint16;
 #                    define U_SINT16_DEFINED 1
 #                else /* If no type is compatible. */
-#                    error error@UtsBT: The 16 bits signed int type does not have the correct size.
+#                    error error@UtsBT: the 16 bits signed int type does not have a compatible size.
 #                endif
 #            else /* If no type is compatible. */
-#                error error@UtsBT: The 16 bits signed int type does not have the correct size.
+#                error error@UtsBT: the 16 bits signed int type does not have a compatible size.
 #            endif
 #
 #        else /* FALL_THROUGH_TYPES == 0 */
-#            error error@UtsBT: The 16 bits signed int type does not have the correct size.
+#            error error@UtsBT: the 16 bits signed int type needed to fall through, but it was set to not to fall through.
 #        endif
 #    endif
 #
@@ -495,10 +498,10 @@
                  typedef unsigned long int u_uint16;
 #                define U_UINT16_DEFINED 1
 #            else /* If no size is compatible. */
-#                error error@UtsBT: The 16 bits unsigned int type does not have the correct size.
+#                error error@UtsBT: the 16 bits unsigned int type does not have a compatible size.
 #            endif
 #        else /* FALL_THROUGH_TYPES == 0 */
-#            error error@UtsBT: The 16 bits unsigned int type does not have the correct size.
+#            error error@UtsBT: the 16 bits unsigned int type needed to fall through, but it was set to not to fall through.
 #        endif
 #    endif
 #
@@ -534,10 +537,10 @@
 				     typedef signed long int u_sint32;
 #                    define U_SINT32_DEFINED 1
 #                else /* If no size is compatible. */
-#                    error error@UtsBT: The 32 bits signed int type does not have the correct size.
+#                    error error@UtsBT: the 32 bits signed int type does not have a compatible size.
 #                endif
 #            else /* FALL_THROUGH_TYPES == 0 */
-#                error error@UtsBT: The 32 bits signed int type does not have the correct size.
+#                error error@UtsBT: the 32 bits signed int type needed to fall through, but it was set to not fall through..
 #            endif
 #        endif
 #    else /* If the size is wrong. */
@@ -547,13 +550,13 @@
                      typedef signed long int u_sint32;
 #                    define U_SINT32_DEFINED 1;
 #                else /* If no size is compatible. */
-#                    error error@UtsBT: The 32 bits signed int type does not have the correct size.
+#                    error error@UtsBT: the 32 bits signed int type does not have a compatible size.
 #                endif
 #            else /* If no size is compatible. */
-#                error error@UtsBT: The 32 bits signed int type does not have the correct size.
+#                error error@UtsBT: the 32 bits signed int type does not have a compatible size.
 #            endif
 #        else /* FALL_THROUGH_TYPES == 0 */
-#            error error@UtsBT: The 32 bits signed int type does not have the correct size.
+#            error error@UtsBT: the 32 bits signed int type needed to fall through, but it was set to not fall through.
 #        endif
 #    endif
 #
@@ -561,7 +564,7 @@
          typedef unsigned int u_uint32;
 #        define U_UINT32_DEFINED 1
 #    else /* If the size is wrong. */
-#        error error@UtsBT: The 32 bits unsigned int type does not have the correct size.
+#        error error@UtsBT: the 32 bits unsigned int type does not have a compatible size.
 #    endif
 #
 
@@ -591,17 +594,17 @@
                  typedef signed long int u_sint64;
 #                define U_SINT64_DEFINED 1
 #            else /* If the size is wrong. */
-#                error error@UtsBT: The 64 bits signed int type does not have the correct size.
+#                error error@UtsBT: the 64 bits signed int type does not have a compatible size.
 #            endif
 #        else /* If the size is wrong. */
-#            error error@UtsBT: The 64 bits signed int type does not have the correct size.
+#            error error@UtsBT: the 64 bits signed int type does not have a compatible size.
 #        endif
 #
 #        if ULONG_MAX >= 0xFFFFFFFFFFFFFFFFUL /* Checks if ends as an unsigned int64. */
              typedef unsigned long int u_uint64;
 #            define U_UINT64_DEFINED 1
 #        else /* If the size is wrong. */
-#            error error@UtsBT: The 64 bits unsigned int type does not have the correct size.
+#            error error@UtsBT: the 64 bits unsigned int type does not have a compatible size.
 #        endif
 #    elif LONG_MIN <= INT_MIN && LONG_MAX >= INT_MAX && ULONG_MAX >= UINT_MAX
          /* The int64 is at least an int32, but not an int64. So, say that's an int32. */
@@ -613,10 +616,10 @@
              typedef unsigned long int u_uint64;
 #            define U_UINT64_IS_DEFINED 1
 #        else /* USE_SAFE_LONG_TYPES == 1 */
-#            error error@UtsBT: The int64 type is the int32 type.
+#            error error@UtsBT: the int64 type is the int32 type.
 #        endif
 #    else
-#        error error@UtsBT: The 64 bits type is not conformant with ISO C89/C99/C++98.
+#        error error@UtsBT: the 64 bits type is not conformant with ISO C89/C99/C++98.
 #    endif
 #
 
