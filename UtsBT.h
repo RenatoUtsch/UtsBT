@@ -349,7 +349,7 @@
 #                if SHRT_MAX >= 0x7FL /* Checks if the size is sufficiently big to define the type. */
                      typedef signed short int u_sint8;
 #					 define U_SINT8_DEFINED 1
-#                elif INT_MIN <= SHRT_MIN && INT_MAX >= 0 x7FL /* Checks if the size is sufficiently big to define the type.
+#                elif INT_MIN <= SHRT_MIN && INT_MAX >= 0x7FL /* Checks if the size is sufficiently big to define the type.
                                                               * SHRT_MIN is guaranteed to have a minimum size ok, so only check by that. */
 	                 typedef signed int u_sint8;
 #                    define U_SINT8_DEFINED 1
@@ -486,7 +486,7 @@
          typedef unsigned short int u_uint16;
 #        define U_UINT16_DEFINED 1
 #    else /* If the size is wrong. */
-#        if FALL_THROUGH_TYPES == 1
+#        if FALL_THROUGH_TYPES == 1 /* If is to fall through the bigger types to define others. */
 #            define U_UINT16_FALLED_THROUGH 1 /* To define a falled through macro to this. */
 #            if INT_MAX >= 0xFFFFUL /* Checks if the size is sufficiently big to define the type. */
                  typedef unsigned int u_uint16;
@@ -528,10 +528,33 @@
              typedef signed int u_sint32;
 #            define U_SINT32_DEFINED 1
 #        else /* If the size is wrong. */
-#            error error@UtsBT: The 32 bits signed int type does not have the correct size.
+#            if FALL_THROUGH_TYPES == 1 /* If is to fall through the bigger types to define others. */
+#                if LONG_MIN <= INT_MIN && LONG_MAX >= 0x7FFFFFFFL /* Checks if the size is sufficiently big to define the type.
+                                                                    * INT_MIN is guaranteed to have a minimum size ok, so only check by that. */
+				     typedef signed long int u_sint32;
+#                    define U_SINT32_DEFINED 1
+#                else /* If no size is compatible. */
+#                    error error@UtsBT: The 32 bits signed int type does not have the correct size.
+#                endif
+#            else /* FALL_THROUGH_TYPES == 0 */
+#                error error@UtsBT: The 32 bits signed int type does not have the correct size.
+#            endif
 #        endif
 #    else /* If the size is wrong. */
-#        error error@UtsBT: The 32 bits signed int type does not have the correct size.
+#        if FALL_THROUGH_TYPES == 1 /* If is to fall through the bigger types to define others. */
+#            if LONG_MIN <= 0x80000000L /* Checks if the size is sufficiently small to define the type. */
+#                if LONG_MAX >= 0x7FFFFFFFL /* Checks if the size is sufficiently big to define the type. */
+                     typedef signed long int u_sint32;
+#                    define U_SINT32_DEFINED 1;
+#                else /* If no size is compatible. */
+#                    error error@UtsBT: The 32 bits signed int type does not have the correct size.
+#                endif
+#            else /* If no size is compatible. */
+#                error error@UtsBT: The 32 bits signed int type does not have the correct size.
+#            endif
+#        else /* FALL_THROUGH_TYPES == 0 */
+#            error error@UtsBT: The 32 bits signed int type does not have the correct size.
+#        endif
 #    endif
 #
 #    if UINT_MAX >= 0xFFFFFFFFUL /* Checks if ends as an unsigned int32. */
@@ -558,9 +581,8 @@
 
 
 
-/* The u_sint64 and u_uint64 have variable maximum size.
- * If USE_SAFE_LONG_INT was set to 1, only sets the u_sint64 and u_uint64 if it is bigger than the u_sint32
- * and u_uint32, respectively.
+/* Now defines the u_sint64 and u_uint64 types. Guarantees at least the
+ * [(-9223372036854775808) ~ 9223372036854775807] / [0 ~  18446744073709551615] size.
  */
 #if BIT_MAX_SIZE >= 64 /* Checks if is to support the 64 bits sign. */
 #    if LONG_MIN < INT_MIN && INT_MAX < LONG_MAX && UINT_MAX < ULONG_MAX
