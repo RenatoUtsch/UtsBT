@@ -6,23 +6,99 @@
  *
  * Copyright (C) 2011, Renato Utsch, <renatoutsch@gmail.com>
  *
- * This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * See the license in the file COPYING.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
- **************************************************************************************************************
- *
- * >>> READ ME File <<<
- * 
- *************************************************************************************************************/
+ **************************************************************************************************************/
 
-/* By now, see the UtsBT.h header. It contains all the documentation... */
+===============================
+---UtsBT - Utsch Basic Types---
+===============================
+Have you ever had problems with the size of the C / C++ types? Like, if you designed a software to run under a
+computer with 32bits archtecture and then tried to compile it on a computer with a 16bits archtecture? Almost
+surely you will have big problems with the basic types that C / C++ defines, because they are implementation
+defined. Then, most surely you will have problems if you need to store the number 2147483638 in an int variable
+at a computer with a 16bits archtecture. You would need a long int for that. Change all int definitions in your
+program can be a bit tedious. So, what you should do?
+
+Write your programs using UtsBT.
+
+What UtsBT do? It defines portable and secure types, that guarantees a minimum size to a tipe it defines.
+For example, the signed 32bits int, defined as sint32 has at least a range of [(-2147483648) ~ 2147483647].
+At the example of a 32bits-designed program being compiled at a 16bits machine, you could surpass this problem
+with no changes. Yes, NO CHANGES. Or it compiles in a 16bits machine, or it would never compile on it.
+
+UtsBT is superior to the C99's <stdint.h> because:
+* It doesn't need a compiler with the C99 implemented. Any C compiler with the <limits.h> header would work.
+* It works with C++, using the <climits> header. Any C++ compiler with the <climits> header would work.
+* UtsBT is more secure with the types. If no exact type is found to cover the minimum size, a bigger type is
+  put in the place of the smaller one to guarantee the minimum size.
+* UtsBT is in constant development, with a lot of additions from time to time to make your work with portable
+  types between archtectures easier, what obviously doesn't happen with <stdint.h> header.
+* In the future the size of floats will be added.
+* UtsBT types are more easy to write ;)
+
+One possible thing that C99's <stdint.h> is superior is because it may define long long int portable types,
+but this doesn't make difference by now.
+
+
+
+===========================
+---UtsBT's Documentation---
+===========================
+See the /docs folder of the distribution you downloaded for UtsBT's documentation.
+
+
+
+========================
+---UtsBT's Repository---
+========================
+You can access UtsBT's repository at GitHub any time, by acessing the link:
+
+     ----------------------------------------------
+          https://github.com/RenatoUtsch/UtsBT
+     ----------------------------------------------
+
+If you want to clone the repository, use the following git command on a clean folder:
+
+     ----------------------------------------------------------
+          git clone git://github.com/RenatoUtsch/UtsBT.git
+     ----------------------------------------------------------
+
+The latest checkout of the master branch stores the latest stable version released, which you can access
+by checkouting its tag:
+     ---------------------------
+          git checkout vx.y
+     ---------------------------
+
+Where x is the main version and y is the minor version. You can acess any tag released by doing this.
+
+There's the development branch too, which stores the latest release of UtsBT, but which may contain bugs.
+You can always checkout it by using the following git command:
+
+     ----------------------------------
+          git checkout development
+     ----------------------------------
+
+
+
+=====================
+---Compiling UtsBT---
+=====================
+UtsBT doesn't need any build steps. Only copy the UtsBT.h header to your project, change the configurations you
+want and use it!
+
+But if you want to test it in your machine, you can access the /tests folder and compile the test executable to
+see the results.
+
+To compile it, only type on your computer:
+     --------------
+          make
+     --------------
+
+Of course, on MinGW, you would type:
+     ----------------------
+          mingw32-make
+     ----------------------
+
+Please note that this only works for GCC. If you're using other compilers, you would have to adapt the makefile
+to work with it.

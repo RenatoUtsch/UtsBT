@@ -132,9 +132,10 @@
  * If you want to define the 64bit types safely (only if they are bigger), set this to 1. If you want to
  * define it all times, set to 0.
  *
- * The default is 1 (only define 64 bits types when they are bigger than 32 bits types).
+ * The default is 0 (define it all times). It's highly recommended to enable this option (put it to 1) if
+ * you're compiling a 64bits native program.
  */
-#define USE_SAFE_LONG_TYPES 1
+#define USE_SAFE_LONG_TYPES 0
 
 
 
@@ -142,10 +143,10 @@
  *
  * Set here if you want to fall through bigger types to ensure that almost all times the types will be defined.
  *
- * For example, if the small int size is not sufficient to cover a 16 bit intenger size (which isn't normal), before
- * launching an error UtsBT checks if the int size can cover the 16 bit intenger size, or the long int. Then defines
- * it as the intenger size. This is specially useful if you compile on a architecture different of the one you originally
- * designed the software to work.
+ * For example, if the small int size is not sufficient to cover a 16 bit intenger size (which isn't normal),
+ * before launching an error UtsBT checks if the int size can cover the 16 bit intenger size, or the long int.
+ * Then defines it as the intenger size. This is specially useful if you compile on a architecture different
+ * of the one you originally designed the software to work.
  *
  * The default is 1 (this mode is activated).
  */
@@ -297,8 +298,8 @@
 
 /* Defines the char type. Guarantees at least the (-128) ~ 127 size. */
 #if USE_WCHAR == 0 /* If is a normal char... */
-#    if CHAR_MIN == -0x80 /* Checks if starts as a 'signed' char. */
-#        if CHAR_MAX == 0x7F /* And checks if ends as a 'signed' char. */
+#    if CHAR_MIN <= -0x80 /* Checks if starts as a 'signed' char. */
+#        if CHAR_MAX >= 0x7F /* And checks if ends as a 'signed' char. */
              typedef char u_char;
 #            define U_CHAR_DEFINED 1
 #        else /* If the size is wrong. */
@@ -306,7 +307,7 @@
 #        endif
 #
 #    else /* If is a 'unsigned' char. */
-#        if CHAR_MAX == 0xFF /* And checks if ends as an 'unsigned' char. */
+#        if CHAR_MAX >= 0xFF /* And checks if ends as an 'unsigned' char. */
              typedef char u_char;
 #            define U_CHAR_DEFINED 1
 #        else /* If the size is wrong. */
