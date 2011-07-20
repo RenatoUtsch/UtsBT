@@ -13,19 +13,20 @@
 ===============================
 ---UtsBT - Utsch Basic Types---
 ===============================
-Have you ever had problems with the size of the C / C++ types? Like, if you designed a software to run under a
-computer with 32bits archtecture and then tried to compile it on a computer with a 16bits archtecture? Almost
+Have you ever had problems with the size of the C / C++ types? Like, if you designed software to run under a
+computer with 32bits architecture and then tried to compile it on a computer with 16bits architecture? Almost
 surely you will have big problems with the basic types that C / C++ defines, because they are implementation
 defined. Then, most surely you will have problems if you need to store the number 2147483638 in an int variable
-at a computer with a 16bits archtecture. You would need a long int for that. Change all int definitions in your
+at a computer with 16bits archtecture. You would need a long int for that. Change all int definitions in your
 program can be a bit tedious. So, what you should do?
 
 Write your programs using UtsBT.
 
-What UtsBT do? It defines portable and secure types, that guarantees a minimum size to a tipe it defines.
+What UtsBT do? It defines portable and secure types, which guarantee a minimum size to a type it defines.
 For example, the signed 32bits int, defined as sint32 has at least a range of [(-2147483648) ~ 2147483647].
 At the example of a 32bits-designed program being compiled at a 16bits machine, you could surpass this problem
-with no changes. Yes, NO CHANGES. Or it compiles in a 16bits machine, or it would never compile on it.
+with only one line of changes. Yes, only one line. Or it compiles in a 16bits machine, or it would never 
+compile on it.
 
 UtsBT is superior to the C99's <stdint.h> because:
 * It doesn't need a compiler with the C99 implemented. Any C compiler with the <limits.h> header would work.
@@ -33,7 +34,7 @@ UtsBT is superior to the C99's <stdint.h> because:
 * UtsBT is more secure with the types. If no exact type is found to cover the minimum size, a bigger type is
   put in the place of the smaller one to guarantee the minimum size.
 * UtsBT is in constant development, with a lot of additions from time to time to make your work with portable
-  types between archtectures easier, what obviously doesn't happen with <stdint.h> header.
+  types between architectures easier, what obviously doesn't happen with <stdint.h> header.
 * In the future the size of floats will be added.
 * UtsBT types are more easy to write ;)
 
