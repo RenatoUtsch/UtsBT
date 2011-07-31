@@ -2,7 +2,7 @@
 # *
 # *    Project         <<<<<<<<>>>>>>>>-<<<<<<<<>>>>>>>>
 # *                    <<< Utsch Basic Types - UtsBT >>>
-# *                    <<<<<<<>>><>>>>>-<<<<<<<<>>>>>>>>
+# *                    <<<<<<<<>>>>>>>>-<<<<<<<<>>>>>>>>
 # *
 # * Copyright (C) 2011, Renato Utsch, <renatoutsch@gmail.com>
 # *

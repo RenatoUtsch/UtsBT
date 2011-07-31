@@ -4,7 +4,7 @@
  *
  *    Project         <<<<<<<<>>>>>>>>-<<<<<<<<>>>>>>>>
  *                    <<< Utsch Basic Types - UtsBT >>>
- *                    <<<<<<<>>><>>>>>-<<<<<<<<>>>>>>>>
+ *                    <<<<<<<<>>>>>>>>-<<<<<<<<>>>>>>>>
  *
  * Copyright (C) 2011, Renato Utsch, <renatoutsch@gmail.com>
  *
@@ -77,6 +77,7 @@
 
 
 
+#ifndef BIT_MAX_SIZE
 /* MAXIMUM INTENGER SIZE
  *
  * Set here the maximum size in bits of the intengers that you want to use. Like, if you want to have, at
@@ -99,9 +100,11 @@
  * Observation: the char type is always defined.
  */
 #define BIT_MAX_SIZE 32
+#endif
 
 
 
+#ifndef DEFAULT_INTENGER_SIGN
 /* DEFAULT INTENGER SIGN
  *
  * Set here if you want to have a signed or unsigned intenger as default.
@@ -116,9 +119,11 @@
  * The default is 0 (signed).
  */
 #define DEFAULT_INTENGER_SIGN 0
+#endif
 
 
 
+#ifndef USE_SAFE_LONG_TYPES
 /* USE SAFE LONG TYPES
  *
  * Set here if you want to be sure that any long type (64 bits type) is bigger than its 'predecessor'.
@@ -136,9 +141,11 @@
  * you're compiling a 64bits native program.
  */
 #define USE_SAFE_LONG_TYPES 0
+#endif
 
 
 
+#ifndef FALL_THROUGH_TYPES
 /* FALL THROUGH TYPES
  *
  * Set here if you want to fall through bigger types to ensure that almost all times the types will be defined.
@@ -151,10 +158,12 @@
  * The default is 1 (this mode is activated).
  */
 #define FALL_THROUGH_TYPES 1
+#endif
 
 
 
-/* CHAR OR WCHAR
+#ifndef USE_WCHAR_TYPE
+/* USE WCHAR TYPE
  *
  * Set here if you want to use a wchar type. If you want to use a char type, put 0. If you want to use a
  * wchar_t type, put 1.
@@ -162,10 +171,64 @@
  * If you put 1, use the variable u_char normally. It will be the wchar_t type. This makes veeery easy to
  * change between a char and wchar_t type on a program. You only have to change this definition.
  *
+ * Remember that the wchar type will only work with compilers that support it (C++ compilers and the ones
+ * that support the first ammendment to the C89).
+ *
  * The default is 0 (char).
  */
-#define USE_WCHAR 0
+#define USE_WCHAR_TYPE 0
+#endif
 
+
+
+#ifndef DEFINE_BOOL_TYPE
+/* DEFINE BOOL TYPE
+ *
+ * Set here if you want to allow UtsBT to define a bool type. The bool type uses the following names:
+ *
+ * bool -> bool type
+ * u_bool -> secure and fast bool type defined by UtsBT.
+ * true -> macro representing 1
+ * false -> macro representing 0
+ *
+ * If you set to 1 (to define the bool type), the bool type and the true and false macros only wil be
+ * defined if they wasn't before. The u_bool macro will always be defined. This will resolve conflicts
+ * with C++ and with the C99's <stdbool.h>.
+ *
+ * Set as 0 if you want to disable the definition of the bool type.
+ *
+ * The default is 1 (define the bool type).
+ */
+#define DEFINE_BOOL_TYPE 1
+#endif
+
+
+
+#ifndef BOOL_IMPLEMENTATION
+/* BOOL IMPLEMENTATION
+ *
+ * Set here what kind of implementation that you want for the bool type.
+ *
+ * If you set 0, the bool and u_bool type will be defined as macros to the u_sint8 type and the true
+ * and false will be defined as macros (NOT RECOMMENDED).
+ *
+ * If you set to 1, the bool and u_bool type will be defined as typedefs to the u_sint8 (the smallest
+ * type avaible) and the true and false will be defined as macros.
+ *
+ * If you set to 2, the bool and u_bool type will be defined as enumerations, with false and true as it's
+ * only possibilities.
+ *
+ * The advantage of the implementation set to 1 is that the bool type will ocupy the smallest part possible
+ * in the memory and the advantage of the implementation set to 2 is that the bool type will have only two
+ * possible values, true and false. Other values will be considered as an error (such as 34).
+ *
+ * Please note that if you're on C++ or included the <stdbool.h> header of C99, the option selected here
+ * doesn't mind: only the u_bool type will be defined, and it will be a typedef of the standard bool type.
+ *
+ * The default is 1.
+ */
+#define BOOL_IMPLEMENTATION 1
+#endif
 
 
 /* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> DO NOT MODIFY FROM HERE! <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
@@ -180,7 +243,7 @@
  *                                                                                                          *
 \* ======================================================================================================== */
 
-/* Here, declares the internal macros. */
+/* Here, defines the internal macros. */
 
 
 
@@ -188,14 +251,14 @@
 #define UTSBT_COPYRIGHT "Copyright (C) 2011, Renato Utsch, <renatoutsch@gmail.com>"
 
 /* The version in a string. */
-#define UTSBT_VERSION "2.0"
+#define UTSBT_VERSION "2.1"
 
 /* The version is available in two parts: */
 #define UTSBT_VERSION_MAJOR 2
-#define UTSBT_VERSION_MINOR 0
+#define UTSBT_VERSION_MINOR 1
 
 /* It is also available in a hexadecimal to compare against versions. */
-#define UTSBT_VERSION_HEX 0x0200;
+#define UTSBT_VERSION_HEX 0x0201;
 
 
 
@@ -215,14 +278,14 @@
 #ifdef __cplusplus
 #    include <climits> /* Used to calculate the limits with the intenger types. */
 #
-#    if USE_WCHAR == 1
+#    if USE_WCHAR_TYPE == 1
 #        include <cwchar> /* To use the wchar_t type. */
 #    endif
 #
 #else /* __cplusplus is not defined. */
 #    include <limits.h> /* Used to calculate the limits with the intenger types. */
 #
-#    if USE_WCHAR == 1
+#    if USE_WCHAR_TYPE == 1
 #        include <wchar.h> /* To use the wchar_t type. */
 #    endif
 #
@@ -264,7 +327,17 @@
 
 /* Checks if USE_WCHAR was set correctly. */
 #if USE_WCHAR != 0 && USE_WCHAR != 1
-#    error error@utsBT: the USE_WCHAR macro was set incorrectly.
+#    error error@UtsBT: the USE_WCHAR macro was set incorrectly.
+#endif
+
+/* Checks if DEFINE_BOOL_TYPE was set correctly. */
+#if DEFINE_BOOL_TYPE != 0 && DEFINE_BOOL_TYPE != 1
+#    error error@UtsBT: the DEFINE_BOOL_TYPE macro was set incorrectly.
+#endif
+
+/* Checks if BOOL_IMPLEMENTATION was set correctly. */
+#if BOOL_IMPLEMENTATION != 0 && BOOL_IMPLEMENTATION != 1 && BOOL_IMPLEMENTATION != 2
+#    error error@UtsBT: the BOOL_IMPLEMENTATION macro was set incorrectly.
 #endif
 
 /* Now, for a bit extra security, tests if the compiler has supplied a conformant <limits.h> file... */
@@ -297,7 +370,7 @@
 
 
 /* Defines the char type. Guarantees at least the (-128) ~ 127 size. */
-#if USE_WCHAR == 0 /* If is a normal char... */
+#if USE_WCHAR_TYPE == 0 /* If is a normal char... */
 #    if CHAR_MIN <= -0x80 /* Checks if starts as a 'signed' char. */
 #        if CHAR_MAX >= 0x7F /* And checks if ends as a 'signed' char. */
              typedef char u_char;
@@ -315,7 +388,7 @@
 #        endif
 #    endif
 #
-#elif USE_WCHAR == 1 /* If is a wchar_t char... */
+#else /* USE_WCHAR_TYPE == 1 */
 #    define WCHAR_NOT_IMPLEMENTED 1 /* Needs to implement... */
 #endif
 
@@ -646,5 +719,39 @@
 
 /* End of int64 types. */
 #endif /* BIT_MAX_SIZE >= 64 */
+
+
+
+/* Definition of the bool type. */
+#if DEFINE_BOOL_TYPE == 1
+#    if BOOL_IMPLEMENTATION == 0
+#        if defined __cplusplus || defined __bool_true_false_are_defined
+             typedef bool u_bool;
+#        else /* not defined __cplusplus || not defined __bool_true_false_are_defined */
+#            define bool u_sint8
+#            define u_bool u_sint8
+#            define false 0
+#            define true 1
+#        endif
+#    elif BOOL_IMPLEMENTATION == 1
+#        if defined __cplusplus || defined __bool_true_false_are_defined
+             typedef bool u_bool;
+#        else /* not defined __cplusplus || not defined __bool_true_false_are_defined */
+             typedef u_sint8 bool;
+             typedef u_sint8 u_bool;
+#            define false 0
+#            define true 1
+#        endif
+#    else /* BOOL_IMPLEMENTATION == 2 */
+#        if defined __cplusplus || defined __bool_true_false_are_defined
+             typedef bool u_bool;
+#        else /* not defined __cplusplus || not defined __bool_true_false_are_defined */
+             typedef enum {
+			     false, true
+		     } bool, u_bool;
+#        endif
+#    endif
+#endif
+
 
 #endif /* !UTSBT_H_INCLUDED */
